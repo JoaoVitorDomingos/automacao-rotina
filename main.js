@@ -89,9 +89,13 @@ function obterHorario(atividade, diaSemana) {
 }
 
 function dataSemHorario() {
-  const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
-  return hoje.toISOString();
+  const agora = new Date();
+
+  // Ajusta para UTC-3 (Brasil)
+  agora.setHours(agora.getHours() - 3);
+  agora.setHours(0, 0, 0, 0);
+
+  return agora.toISOString();
 }
 
 async function obterIdsDS() {
