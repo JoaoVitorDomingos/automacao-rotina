@@ -2,6 +2,16 @@ import "dotenv/config";
 import { notion } from "./src/notion.js";
 import { databaseIDs } from "./src/utils/databaseIds.js";
 
+function hojeBrasil() {
+  const agora = new Date();
+
+  return new Date(
+    agora.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }),
+  );
+}
+
+const hoje = hojeBrasil();
+
 const mapaHorario = {
   Segunda: "Horário Segunda",
   Terça: "Horário Terça",
@@ -21,8 +31,6 @@ const dias = [
   "Sexta",
   "Sábado",
 ];
-
-const hoje = new Date();
 
 const diaSemana = dias[hoje.getDay()];
 
@@ -89,21 +97,9 @@ function obterHorario(atividade, diaSemana) {
 }
 
 function dataSemHorario() {
-  const agora = new Date();
-
-  // Cria data em UTC às 00:00
-  const dataUTC = new Date(
-    Date.UTC(agora.getUTCFullYear(), agora.getUTCMonth(), agora.getUTCDate()),
-  );
-
-  return dataUTC.toISOString();
-}
-
-function formatarDataBR() {
-  const d = new Date();
-  return new Date(
-    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
-  ).toLocaleDateString("pt-BR", { timeZone: "UTC" });
+  const d = hojeBrasil();
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString();
 }
 
 async function obterIdsDS() {
@@ -170,7 +166,7 @@ async function obterResumoDoDia(dataSourceAnalise) {
 }
 
 async function criarResumo(dataSourceAnalise) {
-  const dataFormatada = formatarDataBR();
+  const dataFormatada = hoje.toLocaleDateString("pt-BR");
   const nomePag = `${dataFormatada} - ${diaSemana}`;
 
   const resumo = await notion.pages.create({
