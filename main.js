@@ -91,11 +91,19 @@ function obterHorario(atividade, diaSemana) {
 function dataSemHorario() {
   const agora = new Date();
 
-  // Ajusta para UTC-3 (Brasil)
-  agora.setHours(agora.getHours() - 3);
-  agora.setHours(0, 0, 0, 0);
+  // Cria data em UTC às 00:00
+  const dataUTC = new Date(
+    Date.UTC(agora.getUTCFullYear(), agora.getUTCMonth(), agora.getUTCDate()),
+  );
 
-  return agora.toISOString();
+  return dataUTC.toISOString();
+}
+
+function formatarDataBR() {
+  const d = new Date();
+  return new Date(
+    Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
+  ).toLocaleDateString("pt-BR", { timeZone: "UTC" });
 }
 
 async function obterIdsDS() {
@@ -162,7 +170,7 @@ async function obterResumoDoDia(dataSourceAnalise) {
 }
 
 async function criarResumo(dataSourceAnalise) {
-  const dataFormatada = hoje.toLocaleDateString("pt-BR");
+  const dataFormatada = formatarDataBR();
   const nomePag = `${dataFormatada} - ${diaSemana}`;
 
   const resumo = await notion.pages.create({
