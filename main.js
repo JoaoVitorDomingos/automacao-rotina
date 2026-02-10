@@ -2,15 +2,39 @@ import "dotenv/config";
 import { notion } from "./src/notion.js";
 import { databaseIDs } from "./src/utils/databaseIds.js";
 
-function hojeBrasil() {
+function dataBrasilSemHorario() {
   const agora = new Date();
 
-  return new Date(
-    agora.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }),
+  // pega data atual no Brasil SEM string intermediária
+  const ano = Number(
+    agora.toLocaleString("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+      year: "numeric",
+    }),
   );
+
+  const mes =
+    Number(
+      agora.toLocaleString("pt-BR", {
+        timeZone: "America/Sao_Paulo",
+        month: "numeric",
+      }),
+    ) - 1;
+
+  const dia = Number(
+    agora.toLocaleString("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+      day: "numeric",
+    }),
+  );
+
+  // cria data UTC fixa (00:00)
+  return new Date(Date.UTC(ano, mes, dia));
 }
 
-const hoje = hojeBrasil();
+const dataHoje = dataBrasilSemHorario();
+
+console.log("Data: " + dataHoje);
 
 const mapaHorario = {
   Segunda: "Horário Segunda",
@@ -32,7 +56,7 @@ const dias = [
   "Sábado",
 ];
 
-const diaSemana = dias[hoje.getDay()];
+const diaSemana = dias[dataHoje.getUTCDay()];
 
 async function main() {
   const idsDS = await obterIdsDS();
@@ -97,9 +121,7 @@ function obterHorario(atividade, diaSemana) {
 }
 
 function dataSemHorario() {
-  const d = hojeBrasil();
-  d.setHours(0, 0, 0, 0);
-  return d.toISOString();
+  return dataHoje.toISOString();
 }
 
 async function obterIdsDS() {
@@ -166,7 +188,9 @@ async function obterResumoDoDia(dataSourceAnalise) {
 }
 
 async function criarResumo(dataSourceAnalise) {
-  const dataFormatada = hoje.toLocaleDateString("pt-BR");
+  const dataFormatada = dataBase.toLocaleDateString("pt-BR", {
+    timeZone: "UTC",
+  });
   const nomePag = `${dataFormatada} - ${diaSemana}`;
 
   const resumo = await notion.pages.create({
