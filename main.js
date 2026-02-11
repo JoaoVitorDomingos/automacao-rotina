@@ -2,39 +2,9 @@ import "dotenv/config";
 import { notion } from "./src/notion.js";
 import { databaseIDs } from "./src/utils/databaseIds.js";
 
-function dataBrasilSemHorario() {
-  const agora = new Date();
+const hoje = new Date();
 
-  // pega data atual no Brasil SEM string intermediária
-  const ano = Number(
-    agora.toLocaleString("pt-BR", {
-      timeZone: "America/Sao_Paulo",
-      year: "numeric",
-    }),
-  );
-
-  const mes =
-    Number(
-      agora.toLocaleString("pt-BR", {
-        timeZone: "America/Sao_Paulo",
-        month: "numeric",
-      }),
-    ) - 1;
-
-  const dia = Number(
-    agora.toLocaleString("pt-BR", {
-      timeZone: "America/Sao_Paulo",
-      day: "numeric",
-    }),
-  );
-
-  // cria data UTC fixa (00:00)
-  return new Date(Date.UTC(ano, mes, dia));
-}
-
-const dataHoje = dataBrasilSemHorario();
-
-console.log("Data: " + dataHoje);
+console.log("Data: " + hoje);
 
 const mapaHorario = {
   Segunda: "Horário Segunda",
@@ -56,9 +26,16 @@ const dias = [
   "Sábado",
 ];
 
-const diaSemana = dias[dataHoje.getUTCDay()];
+const diaSemana = dias[hoje.getDay()];
+
+console.log("Dia da semana: " + diaSemana);
 
 async function main() {
+  if (diaSemana === "Domingo") {
+    console.log("Hoje é domingo!");
+    return;
+  }
+
   const idsDS = await obterIdsDS();
 
   const atividadesHoje = await obterAtividades(idsDS[0]);
@@ -120,10 +97,6 @@ function obterHorario(atividade, diaSemana) {
   return prop?.rich_text?.[0]?.plain_text ?? "";
 }
 
-function dataSemHorario() {
-  return dataHoje.toISOString();
-}
-
 async function obterIdsDS() {
   let ids = [];
 
@@ -179,7 +152,7 @@ async function obterResumoDoDia(dataSourceAnalise) {
     filter: {
       property: "Data",
       date: {
-        equals: dataSemHorario(),
+        equals: hoje,
       },
     },
   });
@@ -188,9 +161,7 @@ async function obterResumoDoDia(dataSourceAnalise) {
 }
 
 async function criarResumo(dataSourceAnalise) {
-  const dataFormatada = dataBase.toLocaleDateString("pt-BR", {
-    timeZone: "UTC",
-  });
+  const dataFormatada = hoje.toLocaleDateString("pt-BR");
   const nomePag = `${dataFormatada} - ${diaSemana}`;
 
   const resumo = await notion.pages.create({
@@ -203,7 +174,7 @@ async function criarResumo(dataSourceAnalise) {
       },
       Data: {
         date: {
-          start: dataSemHorario(),
+          start: hoje,
         },
       },
     },
@@ -223,7 +194,7 @@ async function rotinaJaExiste(dataSourceRotina, atividadeId) {
         {
           property: "Data",
           date: {
-            equals: dataSemHorario(),
+            equals: hoje,
           },
         },
         {
@@ -255,7 +226,7 @@ async function criarItemDeRotina({ dataSourceRotina, atividade, diaSemana }) {
       },
       Data: {
         date: {
-          start: dataSemHorario(),
+          start: hoje,
         },
       },
       Horário: {
