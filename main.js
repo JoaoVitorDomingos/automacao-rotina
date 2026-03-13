@@ -31,10 +31,6 @@ const diaSemana = dias[hoje.getDay()];
 console.log("Dia da semana: " + diaSemana);
 
 async function main() {
-  if (diaSemana === "Domingo") {
-    console.log("Hoje é domingo!");
-    return;
-  }
 
   const idsDS = await obterIdsDS();
 
