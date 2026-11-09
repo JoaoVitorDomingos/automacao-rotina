@@ -31,7 +31,6 @@ const diaSemana = dias[hoje.getDay()];
 console.log("Dia da semana: " + diaSemana);
 
 async function main() {
-
   const idsDS = await obterIdsDS();
 
   const atividadesHoje = await obterAtividades(idsDS[0]);
@@ -212,6 +211,9 @@ async function criarItemDeRotina({ dataSourceRotina, atividade, diaSemana }) {
   const nomeAtv =
     atividade.properties.Nome?.title?.[0]?.plain_text ?? "Atividade";
 
+  const significadoAtv =
+    atividade.properties.Significado?.rich_text?.[0]?.plain_text ?? "";
+
   return notion.pages.create({
     parent: {
       data_source_id: dataSourceRotina,
@@ -236,6 +238,9 @@ async function criarItemDeRotina({ dataSourceRotina, atividade, diaSemana }) {
       },
       Atividade: {
         relation: [{ id: atividade.id }],
+      },
+      Significado: {
+        rich_text: [{ text: { content: significadoAtv } }],
       },
     },
     icon: {
